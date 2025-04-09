@@ -1,43 +1,34 @@
-require("dotenv").config(); // Load environment variables first
 const express = require("express");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const shipmentRoutes = require("./routes");
+const connectDB = require("./config");
 
+// Load environment variables from .env file
+dotenv.config();
+
+// Create express app
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// Check if MONGO_URI is set
-const mongoURI = process.env.MONGO_URI;
-if (!mongoURI) {
-  console.error("❌ MONGO_URI is missing in .env file");
-  process.exit(1);
-}
+// ✅ Enable CORS for your frontend (React at port 5173)
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 
-// Define Schema & Model
-const fsdSchema = new mongoose.Schema({
-  name: String,
-  age: Number,
-});
+// ✅ Middleware to parse JSON requests
+app.use(express.json());
 
-const FsdModel = mongoose.model("fsd", fsdSchema, "fsd"); // <-- Explicitly set collection name
+// ✅ API Routes
+app.use("/api", shipmentRoutes);
 
-// Get All Documents from "fsd"
-app.get("/fsd", async (req, res) => {
-  try {
-    const data = await FsdModel.find();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Connect to MongoDB and Start Server
-mongoose
-  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    console.log("✅ MongoDB Connected");
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error("❌ Connection Failed", err);
-    process.exit(1); // Exit if DB connection fails
+// ✅ MongoDB Connection & Server Start
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server is running at http://localhost:${PORT}`);
   });
+}).catch((err) => {
+  console.error("❌ Failed to connect to MongoDB", err);
+});

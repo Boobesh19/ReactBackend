@@ -1,59 +1,56 @@
 const express = require("express");
+const router = express.Router();
 const Shipment = require("./model");
 
-const router = express.Router();
-
-// ➤ CREATE a new shipment
-router.post("/shipments", async (req, res) => {
-  try {
-    const newShipment = new Shipment(req.body);
-    await newShipment.save();
-    res.status(201).json(newShipment);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// ➤ READ all shipments
+// Get all shipments
 router.get("/shipments", async (req, res) => {
   try {
     const shipments = await Shipment.find();
     res.json(shipments);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-// ➤ READ a single shipment by ID
-router.get("/shipments/:id", async (req, res) => {
+// Add new shipment (✅ Updated with trackingNumber generation)
+router.post("/shipments", async (req, res) => {
   try {
-    const shipment = await Shipment.findById(req.params.id);
-    if (!shipment) return res.status(404).json({ error: "Shipment not found" });
-    res.json(shipment);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    // console.log("📦 Incoming POST data:", req.body);
+
+    // ✅ Auto-generate a unique tracking number
+    const trackingNumber = `TRK${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
+    // Create a new shipment object with trackingNumber
+    const shipment = new Shipment({
+      ...req.body,
+      trackingNumber,
+    });
+
+    await shipment.save();
+    res.status(201).json(shipment);
+  } catch (err) {
+    console.error("❌ Error saving shipment:", err.message);
+    res.status(400).json({ error: err.message });
   }
 });
 
-// ➤ UPDATE a shipment
+// Update shipment
 router.put("/shipments/:id", async (req, res) => {
   try {
-    const updatedShipment = await Shipment.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedShipment) return res.status(404).json({ error: "Shipment not found" });
-    res.json(updatedShipment);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const updated = await Shipment.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 
-// ➤ DELETE a shipment
+// Delete shipment
 router.delete("/shipments/:id", async (req, res) => {
   try {
-    const deletedShipment = await Shipment.findByIdAndDelete(req.params.id);
-    if (!deletedShipment) return res.status(404).json({ error: "Shipment not found" });
-    res.json({ message: "Shipment deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    await Shipment.findByIdAndDelete(req.params.id);
+    res.json({ message: "Shipment deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
