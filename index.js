@@ -12,23 +12,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Enable CORS for your frontend (React at port 5173)
+// Enable CORS for your frontend (React at port 5173)
 app.use(cors({
   origin: "http://localhost:5173",
   credentials: true,
 }));
 
-// ✅ Middleware to parse JSON requests
+// Middleware to parse JSON requests
 app.use(express.json());
 
-// ✅ API Routes
+// API Routes
 app.use("/api", shipmentRoutes);
 
-// ✅ MongoDB Connection & Server Start
+// MongoDB Connection & Server Start
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 Server is running at http://localhost:${PORT}`);
+    console.log(` Server is running at Port :${PORT}`);
   });
 }).catch((err) => {
-  console.error("❌ Failed to connect to MongoDB", err);
+  console.error(" Failed to connect to MongoDB", err);
 });

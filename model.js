@@ -7,7 +7,7 @@ const shipmentSchema = new mongoose.Schema({
   phone: { type: String, required: true },
   address: { type: String, required: true },
   packageDetails: { type: String, required: true },
-  trackingNumber: { type: String, required: true, unique: true }, // ✅ Add this
+  trackingNumber: { type: String, required: true, unique: true }, //  Add this for future development
 }, { timestamps: true });
 
 module.exports = mongoose.model("Shipment", shipmentSchema);

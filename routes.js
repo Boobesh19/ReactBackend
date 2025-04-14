@@ -12,12 +12,12 @@ router.get("/shipments", async (req, res) => {
   }
 });
 
-// Add new shipment (✅ Updated with trackingNumber generation)
+// Add new shipment ( Updated with trackingNumber generation)
 router.post("/shipments", async (req, res) => {
   try {
     // console.log("📦 Incoming POST data:", req.body);
 
-    // ✅ Auto-generate a unique tracking number
+    // Auto-generate a unique tracking number
     const trackingNumber = `TRK${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
     // Create a new shipment object with trackingNumber
@@ -29,7 +29,7 @@ router.post("/shipments", async (req, res) => {
     await shipment.save();
     res.status(201).json(shipment);
   } catch (err) {
-    console.error("❌ Error saving shipment:", err.message);
+    console.error(" Error saving shipment:", err.message);
     res.status(400).json({ error: err.message });
   }
 });
